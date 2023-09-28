@@ -25,6 +25,7 @@ export default function StarRating({
   size = "48",
   messages = [],
   defaultRating = 0,
+  onRate,
 }) {
   //tak ustawiamy default, który pojawi się jeśli prop maxRating nie istnieje
   const [rating, setRating] = useState(defaultRating);
@@ -39,6 +40,7 @@ export default function StarRating({
 
   function handleRating(rating) {
     setRating(rating);
+    onRate(rating);
   }
 
   return (
