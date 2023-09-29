@@ -323,6 +323,15 @@ function MovieDetails({
     [currMovie]
   );
 
+  useEffect(() => {
+    if (!title) return;
+    document.title = "Movie: " + title;
+
+    return () => {
+      document.title = "Use Popcorn";
+    };
+  }, [title]);
+
   return (
     <div className="details">
       {isLoading ? (
