@@ -75,12 +75,14 @@ export default function App() {
       setError("");
       return;
     }
+    const controller = new AbortController();
     (async function () {
       try {
         setIsLoading(true);
         setError("");
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`,
+          { signal: controller.signal }
         );
 
         if (!res.ok) {
@@ -91,12 +93,18 @@ export default function App() {
         if (data.Response === "False") throw new Error("Movie not found");
 
         setMovies(data.Search);
+        setError("");
       } catch (err) {
-        setError(err.message);
+        if (err.name !== "AbortError") {
+          setError(err.message);
+        }
       } finally {
         setIsLoading(false);
       }
     })();
+    return () => {
+      controller.abort();
+    };
   }, [query]);
 
   return (
@@ -306,6 +314,20 @@ function MovieDetails({
     onAddWatchedMovie(watchedMovie);
     onCloseMovie(null);
   }
+
+  useEffect(() => {
+    function callback(e) {
+      if (e.code === "Escape") {
+        onCloseMovie(null);
+      }
+    }
+
+    document.addEventListener("keydown", callback);
+
+    return () => {
+      document.removeEventListener("keydown", callback);
+    };
+  }, [onCloseMovie]);
 
   useEffect(
     function () {
